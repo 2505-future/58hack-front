@@ -79,10 +79,11 @@ export const createGameConfig = async (
           // メインプレイヤーを赤い円として描画
           // TODO: プレイヤーステータスを反映（とりあえず player1 で）
           // TODO: 自分のプレイヤーアイコンのみをハイライトするようにする
+          // フィールドの中心付近にメインプレイヤーを配置（少しオフセットを加えて）
           const player = new Player(
             this,
-            this.cameras.main.centerX,
-            this.cameras.main.centerY,
+            this.cameras.main.centerX - 20, // 少し左にずらす
+            this.cameras.main.centerY + 10, // 少し下にずらす
             20, // 半径
             'player1',
             '',
@@ -102,9 +103,36 @@ export const createGameConfig = async (
             const fieldCenterX = this.cameras.main.centerX;
             const fieldCenterY = this.cameras.main.centerY;
             
-            // フィールド内のランダムな座標を計算
-            const randomX = fieldCenterX - fieldWidth / 2 + Phaser.Math.Between(50, fieldWidth - 50);
-            const randomY = fieldCenterY - fieldHeight / 2 + Phaser.Math.Between(50, fieldHeight - 50);
+            let randomX, randomY;
+            
+            // フィールド内で均等に広がるようにプレイヤーを配置
+            const margin = 30;
+            switch (i % 5) {
+              case 0: // 左上
+                randomX = fieldCenterX - fieldWidth / 2 + Phaser.Math.Between(margin, fieldWidth / 3);
+                randomY = fieldCenterY - fieldHeight / 2 + Phaser.Math.Between(margin, fieldHeight / 3);
+                break;
+              case 1: // 右上
+                randomX = fieldCenterX + Phaser.Math.Between(0, fieldWidth / 3);
+                randomY = fieldCenterY - fieldHeight / 2 + Phaser.Math.Between(margin, fieldHeight / 3);
+                break;
+              case 2: // 左下
+                randomX = fieldCenterX - fieldWidth / 2 + Phaser.Math.Between(margin, fieldWidth / 3);
+                randomY = fieldCenterY + Phaser.Math.Between(0, fieldHeight / 3);
+                break;
+              case 3: // 右下
+                randomX = fieldCenterX + Phaser.Math.Between(0, fieldWidth / 3);
+                randomY = fieldCenterY + Phaser.Math.Between(0, fieldHeight / 3);
+                break;
+              case 4: // 周辺 (中央と離れた場所)
+              default:
+                // ランダムな角度と距離でプレイヤーを配置
+                const angle = Phaser.Math.DegToRad(Phaser.Math.Between(0, 360));
+                const distance = Phaser.Math.Between(fieldWidth / 4, fieldWidth / 2.5);
+                randomX = fieldCenterX + Math.cos(angle) * distance;
+                randomY = fieldCenterY + Math.sin(angle) * distance;
+                break;
+            }
             
             const enemyPlayer = new Player(
               this,
