@@ -28,9 +28,12 @@ export default defineConfig({
 			},
 		}),
 		tsconfigPaths(),
+
+		// CommonJS ライブラリを ESModule 環境で使用するためのプラグイン
 		cjsInterop({
 			dependencies: [
 				"react-loader-spinner",
+				// ここにライブラリ名を追加
 			]
 		})
 	],
