@@ -5,6 +5,7 @@ import {
 import { defineConfig } from "vite";
 import tsconfigPaths from "vite-tsconfig-paths";
 import { getLoadContext } from "./load-context";
+import { cjsInterop } from "vite-plugin-cjs-interop";
 
 declare module "@remix-run/cloudflare" {
 	interface Future {
@@ -27,6 +28,11 @@ export default defineConfig({
 			},
 		}),
 		tsconfigPaths(),
+		cjsInterop({
+			dependencies: [
+				"react-loader-spinner",
+			]
+		})
 	],
 	ssr: {
 		resolve: {
