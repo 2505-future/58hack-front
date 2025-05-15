@@ -16,6 +16,7 @@ export class Player extends GameObjects.Arc {
   private isCooldown: boolean = false;
   private moveSpeed: number = 0;
   private cooldownTimer: Phaser.Time.TimerEvent | null = null;
+  private isControlEnabled: boolean = false;
 
   // ひっぱり用の変数
   private dragStartPoint: Phaser.Math.Vector2 | null = null;
@@ -234,12 +235,29 @@ export class Player extends GameObjects.Arc {
   }
 
   /**
+   * プレイヤーの操作を有効/無効にする
+   * @param enabled 操作を有効にする場合はtrue、無効にする場合はfalse
+   */
+  public setControlEnabled(enabled: boolean): void {
+    this.isControlEnabled = enabled;
+  }
+
+  /**
+   * プレイヤーの操作が有効かどうかを確認する
+   * @returns 操作が有効ならtrue、そうでなければfalse
+   */
+  public isControlsEnabled(): boolean {
+    return this.isControlEnabled;
+  }
+
+  /**
    * ひっぱり開始のポイントを設定する（一度目のクリック）
    * @param x ひっぱり開始地点のX座標
    * @param y ひっぱり開始地点のY座標
    */
   public startDrag(x: number, y: number): void {
-    if (this.isInCooldown()) return;
+    // クールダウン中または操作が無効の場合は何もしない
+    if (this.isInCooldown() || !this.isControlEnabled) return;
 
     console.log('Drag started at:', x, y);
     this.dragStartPoint = new Phaser.Math.Vector2(x, y);
@@ -252,7 +270,7 @@ export class Player extends GameObjects.Arc {
    * @returns 移動が実行されたかどうか
    */
   public completeDrag(x: number, y: number): boolean {
-    if (this.isInCooldown() || !this.dragStartPoint) return false;
+    if (this.isInCooldown() || !this.isControlEnabled || !this.dragStartPoint) return false;
 
     // ドラッグの終点を作成
     const dragEndPoint = new Phaser.Math.Vector2(x, y);

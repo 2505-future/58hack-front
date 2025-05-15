@@ -74,7 +74,7 @@ export const createGameConfig = async (
           // Playerクラスを動的にインポート
           // @ts-expect-error 動的インポート(tsconfig.jsonでのmodules設定に依存)
           const { Player } = await import("../objects/player");
-          const players = [];
+          const players: Player[] = [];
           
           // メインプレイヤーを赤い円として描画
           // TODO: プレイヤーステータスを反映（とりあえず player1 で）
@@ -120,6 +120,11 @@ export const createGameConfig = async (
             players.push(enemyPlayer);
           }
           
+          // プレイヤーの操作を無効化（カウントダウン中）
+          players.forEach(player => {
+            player.setControlEnabled(false);
+          });
+          
           // プレイヤー同士の衝突を設定
           this.physics.add.collider(players, players, (obj1, obj2) => {
             const p1 = obj1 as unknown as Player;
@@ -142,6 +147,10 @@ export const createGameConfig = async (
           // 画面クリック時の処理を設定
           let isFirstClick = true;
           this.input.on('pointerdown', (pointer: Phaser.Input.Pointer) => {
+            // ゲームの状態が playing でない場合は操作を無効化
+            const gameStatus = stateManager.getState().gameStatus;
+            if (gameStatus !== 'playing') return;
+            
             if (isFirstClick) {
               // 1回目のクリック：ひっぱりを開始
               player.startDrag(pointer.x, pointer.y);
@@ -159,25 +168,125 @@ export const createGameConfig = async (
             }
           });
 
+          // カウントダウンタイマーを実装
+          const startCountdown = () => {
+            const countdownDuration = 5; // 5秒のカウントダウン
+            stateManager.setGameStatus('countdown', countdownDuration);
+            
+            // カウントダウンテキストを作成
+            const countdownText = this.add.text(
+              this.cameras.main.centerX,
+              this.cameras.main.centerY - 50,
+              countdownDuration.toString(),
+              { 
+                fontSize: '72px',
+                fontFamily: 'Arial',
+                color: '#ffffff',
+                stroke: '#000000',
+                strokeThickness: 5,
+                align: 'center'
+              }
+            ).setOrigin(0.5);
+            
+            const startText = this.add.text(
+              this.cameras.main.centerX,
+              this.cameras.main.centerY + 50,
+              '',
+              { 
+                fontSize: '60px',
+                fontFamily: 'Arial',
+                color: '#ffff00',
+                stroke: '#000000',
+                strokeThickness: 5,
+                align: 'center'
+              }
+            ).setOrigin(0.5).setAlpha(0);
+
+            // カウントダウンのタイマーを設定
+            let timeRemaining = countdownDuration;
+            
+            // 1秒ごとのカウントダウン
+            const countdownTimer = this.time.addEvent({
+              delay: 1000,
+              callback: () => {
+                timeRemaining--;
+                
+                if (timeRemaining > 0) {
+                  // カウントダウン続行
+                  countdownText.setText(timeRemaining.toString());
+                  stateManager.setGameStatus('countdown', timeRemaining);
+                  
+                  // テキストを拡大して縮小するアニメーション
+                  this.tweens.add({
+                    targets: countdownText,
+                    scale: { from: 1.5, to: 1 },
+                    duration: 500,
+                    ease: 'Cubic.out'
+                  });
+                } else {
+                  // カウントダウン終了
+                  countdownText.setVisible(false);
+                  
+                  // STARTテキストを表示
+                  startText.setText('START!');
+                  startText.setAlpha(1);
+                  
+                  // STARTテキストのアニメーション
+                  this.tweens.add({
+                    targets: startText,
+                    scale: { from: 0.5, to: 1.5 },
+                    alpha: { from: 1, to: 0 },
+                    duration: 1000,
+                    ease: 'Cubic.out',
+                    onComplete: () => {
+                      startText.destroy();
+                    }
+                  });
+                  
+                  // ゲーム開始！プレイヤーの操作を有効化
+                  stateManager.setGameStatus('playing');
+                  
+                  // すべてのプレイヤーの操作を有効化
+                  players.forEach(player => {
+                    player.setControlEnabled(true);
+                  });
+                }
+              },
+              callbackScope: this,
+              repeat: countdownDuration
+            });
+          };
+          
+          // プレイヤーが全てスポーンしたらカウントダウン開始
+          startCountdown();
         } catch (error) {
           console.error("Failed to load Player:", error);
         }
-
-        stateManager.setGameStatus('playing');
       },
       update: function (this: Phaser.Scene) {
         const statusTextKey = 'gameStatusText';
-        const status = stateManager.getState().gameStatus;
+        const gameState = stateManager.getState();
+        const status = gameState.gameStatus;
+        const countdownValue = gameState.countdownValue;
         
         let statusText = this.children.getByName(statusTextKey) as Phaser.GameObjects.Text | null;
         if (!statusText) {
-          statusText = this.add.text(0, 0, `status: ${status}`, {
+          let statusStr = `status: ${status}`;
+          if (status === 'countdown' && countdownValue !== undefined) {
+            statusStr += ` (${countdownValue})`;
+          }
+
+          statusText = this.add.text(0, 0, statusStr, {
             font: '15px',
             color: '#222',
             padding: { left: 8, right: 8, top: 4, bottom: 4 }
           }).setOrigin(0, 0).setName(statusTextKey).setDepth(1000);
         } else {
-          statusText.setText(`status: ${status}`);
+          let statusStr = `status: ${status}`;
+          if (status === 'countdown' && countdownValue !== undefined) {
+            statusStr += ` (${countdownValue})`;
+          }
+          statusText.setText(statusStr);
         }
       }
     }

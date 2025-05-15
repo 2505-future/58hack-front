@@ -6,7 +6,8 @@
 // ゲーム状態を定義
 export interface GameState {
   players: Record<string, PlayerState>;
-  gameStatus: 'waiting' | 'playing' | 'finished';
+  gameStatus: 'waiting' | 'countdown' | 'playing' | 'finished';
+  countdownValue?: number;
 }
 
 // プレイヤー状態を定義
@@ -26,7 +27,7 @@ type GameEvent =
   | { type: 'playerAdded'; player: PlayerState }
   | { type: 'playerUpdated'; player: PlayerState }
   | { type: 'playerRemoved'; playerId: string }
-  | { type: 'gameStatusChanged'; status: 'waiting' | 'playing' | 'finished' }
+  | { type: 'gameStatusChanged'; status: 'waiting' | 'countdown' | 'playing' | 'finished'; countdownValue?: number }
   | { type: 'stateReset' };
 
 // イベントリスナーの型
@@ -39,7 +40,8 @@ class ClientGameStateManager {
   private static instance: ClientGameStateManager;
   private _state: GameState = {
     players: {},
-    gameStatus: 'waiting'
+    gameStatus: 'waiting',
+    countdownValue: undefined
   };
   private listeners: GameEventListener[] = [];
 
@@ -122,11 +124,13 @@ class ClientGameStateManager {
   /**
    * ゲームステータスを設定
    */
-  public setGameStatus(status: 'waiting' | 'playing' | 'finished'): void {
+  public setGameStatus(status: 'waiting' | 'countdown' | 'playing' | 'finished', countdownValue?: number): void {
     this._state.gameStatus = status;
+    this._state.countdownValue = countdownValue;
     this.notifyListeners({
       type: 'gameStatusChanged',
-      status
+      status,
+      countdownValue
     });
   }
 
@@ -136,7 +140,8 @@ class ClientGameStateManager {
   public resetState(): void {
     this._state = {
       players: {},
-      gameStatus: 'waiting'
+      gameStatus: 'waiting',
+      countdownValue: undefined
     };
     this.notifyListeners({ type: 'stateReset' });
   }
