@@ -98,10 +98,18 @@ export const createGameConfig = async (
           // 適当な敵プレイヤーを作成
           // TODO: プレイヤーを追加する処理を実装
           for (let i = 0; i < 5; i++) {
+            // フィールドの中心座標を取得
+            const fieldCenterX = this.cameras.main.centerX;
+            const fieldCenterY = this.cameras.main.centerY;
+            
+            // フィールド内のランダムな座標を計算
+            const randomX = fieldCenterX - fieldWidth / 2 + Phaser.Math.Between(50, fieldWidth - 50);
+            const randomY = fieldCenterY - fieldHeight / 2 + Phaser.Math.Between(50, fieldHeight - 50);
+            
             const enemyPlayer = new Player(
               this,
-              Phaser.Math.Between(0, fieldWidth),
-              Phaser.Math.Between(0, fieldWidth),
+              randomX,
+              randomY,
               20, // 半径
               `enemy${i}`,
               '',
