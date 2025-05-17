@@ -122,9 +122,9 @@ export const createGameConfig = async (
 
 						// volume に基づいて半径を計算（最小10、最大40）
 						const baseRadius = 10;
-						const volumeEffect = playerData.volume / 100 * 30; // volume最大(100)で+30
+						const volumeEffect = (playerData.volume / 100) * 30; // volume最大(100)で+30
 						const radius = Math.floor(baseRadius + volumeEffect);
-						
+
 						const player = new Player(
 							this,
 							x,
@@ -137,15 +137,15 @@ export const createGameConfig = async (
 							playerData.volume,
 							playerData.cd,
 						);
-						
-						if(playerData.isMainPlayer) {
+
+						if (playerData.isMainPlayer) {
 							mainPlayer = player;
 							// メインプレイヤーの視覚強調を設定
 							player.setAsMainPlayer();
 						} else {
 							player.setFillStyle(COLORS.ENEMY, 1);
 						}
-						
+
 						playerObjects.push(player);
 					}
 

@@ -24,16 +24,16 @@ export class Player extends GameObjects.Arc {
 	private iconMaskGraphics: Phaser.GameObjects.Graphics | null = null;
 	private highlightGraphics: Phaser.GameObjects.Graphics | null = null;
 	private youIndicator: Phaser.GameObjects.Text | null = null;
-	
+
 	// マスク更新最適化用の変数
-	private lastMaskX: number = 0;
-	private lastMaskY: number = 0;
-	private lastMaskRadius: number = 0;
-	
+	private lastMaskX = 0;
+	private lastMaskY = 0;
+	private lastMaskRadius = 0;
+
 	// ハイライト更新最適化用の変数
-	private lastHighlightX: number = 0;
-	private lastHighlightY: number = 0;
-	private lastHighlightRadius: number = 0;
+	private lastHighlightX = 0;
+	private lastHighlightY = 0;
+	private lastHighlightRadius = 0;
 
 	// ひっぱり用の変数
 	private dragStartPoint: Phaser.Math.Vector2 | null = null;
@@ -78,21 +78,21 @@ export class Player extends GameObjects.Arc {
 		this.nameText.setDepth(10); // テキストを上のレイヤーに表示
 
 		// アイコンが設定されていればスプライトを作成
-		if (this.icon && this.icon !== '') {
+		if (this.icon && this.icon !== "") {
 			try {
 				// プレイヤーIDをキーとしてアイコンを表示
 				this.iconSprite = scene.add.sprite(x, y, this.id);
 				// アイコンのサイズを設定（プレイヤーの円と同じサイズに）
 				this.iconSprite.setDisplaySize(radius * 2, radius * 2);
 				this.iconSprite.setDepth(5);
-				
+
 				// 円形マスクを作成してアイコンに適用（円形に切り抜く）
 				this.iconMaskGraphics = scene.make.graphics({});
 				this.iconMaskGraphics.fillStyle(0xffffff);
 				this.iconMaskGraphics.fillCircle(x, y, radius);
 				this.iconMask = this.iconMaskGraphics.createGeometryMask();
 				this.iconSprite.setMask(this.iconMask);
-				
+
 				// マスク更新の最適化用に初期位置と半径を記録
 				this.lastMaskX = x;
 				this.lastMaskY = y;
@@ -193,7 +193,7 @@ export class Player extends GameObjects.Arc {
 			this.iconSprite.setPosition(this.x, this.y);
 			this.iconSprite.setVisible(this.visible);
 			this.iconSprite.setAlpha(this.alpha);
-			
+
 			// マスクの位置も更新（必要な場合のみ）
 			const radius = (this.body as Phaser.Physics.Arcade.Body)?.width / 2 || 20;
 			this.updateMask(this.x, this.y, radius);
@@ -227,7 +227,7 @@ export class Player extends GameObjects.Arc {
 		// アイコンの位置を更新
 		if (this.iconSprite) {
 			this.iconSprite.setPosition(x, y);
-			
+
 			// マスクも位置を更新（必要な場合のみ）
 			const radius = (this.body as Phaser.Physics.Arcade.Body)?.width / 2 || 20;
 			this.updateMask(x, y, radius);
@@ -616,36 +616,38 @@ export class Player extends GameObjects.Arc {
 
 		// 背景色は変更せず、輝く金色の円形アウトラインを追加
 		this.highlightGraphics = this.scene.add.graphics();
-		this.highlightGraphics.lineStyle(3, 0xFFD700); // 3px太さの金色の線
+		this.highlightGraphics.lineStyle(3, 0xffd700); // 3px太さの金色の線
 		this.highlightGraphics.strokeCircle(this.x, this.y, radius + 5);
 		this.highlightGraphics.setDepth(4); // アイコンの下、プレイヤーの上
-		
+
 		// ハイライト位置を記録
 		this.lastHighlightX = this.x;
 		this.lastHighlightY = this.y;
 		this.lastHighlightRadius = radius;
 
 		// 「YOU」表示を追加
-		this.youIndicator = this.scene.add.text(this.x, this.y + radius + 15, 'YOU', {
-			fontFamily: 'Arial',
-			fontSize: '12px',
-			fontStyle: 'bold',
-			color: '#FFFFFF',
-			align: 'center',
-			stroke: '#000000',
-			strokeThickness: 3
-		}).setOrigin(0.5, 0.5);
+		this.youIndicator = this.scene.add
+			.text(this.x, this.y + radius + 15, "YOU", {
+				fontFamily: "Arial",
+				fontSize: "12px",
+				fontStyle: "bold",
+				color: "#FFFFFF",
+				align: "center",
+				stroke: "#000000",
+				strokeThickness: 3,
+			})
+			.setOrigin(0.5, 0.5);
 		this.youIndicator.setDepth(10);
 
 		// プレイヤー名のスタイルを強調（太字なし）
 		if (this.nameText) {
 			this.nameText.setStyle({
-				fontFamily: 'Arial',
-				fontSize: '16px',
-				color: '#000000',
-				align: 'center',
-				stroke: '#FFFFFF',
-				strokeThickness: 3
+				fontFamily: "Arial",
+				fontSize: "16px",
+				color: "#000000",
+				align: "center",
+				stroke: "#FFFFFF",
+				strokeThickness: 3,
 			});
 		}
 
@@ -656,7 +658,7 @@ export class Player extends GameObjects.Arc {
 			duration: 800,
 			yoyo: true,
 			repeat: -1,
-			ease: 'Sine.easeInOut'
+			ease: "Sine.easeInOut",
 		});
 	}
 
@@ -681,7 +683,7 @@ export class Player extends GameObjects.Arc {
 			this.iconMaskGraphics.clear();
 			this.iconMaskGraphics.fillStyle(0xffffff);
 			this.iconMaskGraphics.fillCircle(x, y, radius);
-			
+
 			// 新しい位置と半径を記録
 			this.lastMaskX = x;
 			this.lastMaskY = y;
@@ -708,9 +710,9 @@ export class Player extends GameObjects.Arc {
 		// ハイライトを更新
 		if (this.highlightGraphics) {
 			this.highlightGraphics.clear();
-			this.highlightGraphics.lineStyle(3, 0xFFD700);
+			this.highlightGraphics.lineStyle(3, 0xffd700);
 			this.highlightGraphics.strokeCircle(x, y, radius + 5);
-			
+
 			// 新しい位置と半径を記録
 			this.lastHighlightX = x;
 			this.lastHighlightY = y;

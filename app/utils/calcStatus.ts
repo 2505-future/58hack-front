@@ -1,6 +1,6 @@
 import type { GitHubGraphQL } from "~/types/github";
 
-type UserStatus = {
+export type UserStatus = {
 	power: number; // 1~100
 	weight: number; // 1~100
 	volume: number; // 1~100
@@ -37,7 +37,7 @@ const calcStatus = (info: GitHubGraphQL | null): UserStatus => {
 	} = info;
 
 	const rawPower = contributionCount * commitStreak;
-	const power = normalize(rawPower, 50000);
+	const power = normalize(rawPower, 20000);
 
 	const weight = normalize(commitDays, 365);
 	const volume = normalize(commitDays, 365);

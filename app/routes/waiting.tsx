@@ -182,7 +182,7 @@ const WaitingRoom = () => {
 		};
 
 		return () => {
-			if(!redirectRef.current) {
+			if (!redirectRef.current) {
 				ws.close();
 			}
 		};

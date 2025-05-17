@@ -87,8 +87,8 @@ export default function Result() {
 												user.rank === 1
 													? "bg-amber-400 text-white"
 													: user.rank === 2
-													? "bg-neutral-300 text-white"
-													: "bg-amber-200 text-neutral-700"
+														? "bg-neutral-300 text-white"
+														: "bg-amber-200 text-neutral-700"
 											}`}
 										>
 											{user.rank}
@@ -114,8 +114,8 @@ export default function Result() {
 												user.rank === 1
 													? "bg-amber-400 text-white"
 													: user.rank === 2
-													? "bg-neutral-300 text-white"
-													: "bg-amber-200 text-neutral-700"
+														? "bg-neutral-300 text-white"
+														: "bg-amber-200 text-neutral-700"
 											}`}
 										>
 											{user.rank}
